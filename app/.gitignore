@@ -2,10 +2,12 @@
 .gradle
 
 # Ignore Gradle build output directory
-build/
+build
 
 **/logs/
 
+*.class
+jte-classes
 .settings
 bin
 .project*
