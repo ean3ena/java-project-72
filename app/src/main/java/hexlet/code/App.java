@@ -29,10 +29,10 @@ public class App {
         return Integer.parseInt(port);
     }
 
-    private static String getJdbcUrl() {
-        String jdbcUrl = System.getenv().getOrDefault("JDBC_DATABASE_URL",
+    private static String getDatabaseUrl() {
+        String databaseUrl = System.getenv().getOrDefault("JDBC_DATABASE_URL",
                 "jdbc:h2:mem:project;DB_CLOSE_DELAY=-1");
-        return jdbcUrl;
+        return databaseUrl;
     }
 
     private static TemplateEngine createTemplateEngine() {
@@ -45,7 +45,7 @@ public class App {
     public static Javalin getApp() throws Exception {
 
         var hikariConfig = new HikariConfig();
-        hikariConfig.setJdbcUrl(getJdbcUrl());
+        hikariConfig.setJdbcUrl(getDatabaseUrl());
 
         var dataSource = new HikariDataSource(hikariConfig);
         var url = App.class.getClassLoader().getResourceAsStream("schema.sql");
