@@ -60,12 +60,12 @@ public class UrlsController {
             if (urlExists) {
                 ctx.sessionAttribute("flash", "Страница уже существует");
                 ctx.sessionAttribute("flashType", "warning");
-                ctx.redirect(NamedRoutes.rootPath());
+            } else {
+                var urlObj = new Url(urlString, LocalDateTime.now());
+                UrlRepository.save(urlObj);
+                ctx.sessionAttribute("flash", "Страница успешно добавлена");
+                ctx.sessionAttribute("flashType", "success");
             }
-            var urlObj = new Url(urlString, LocalDateTime.now());
-            UrlRepository.save(urlObj);
-            ctx.sessionAttribute("flash", "Страница успешно добавлена");
-            ctx.sessionAttribute("flashType", "success");
             ctx.redirect(NamedRoutes.urlsPath());
         } catch (URISyntaxException | MalformedURLException | IllegalArgumentException e) {
             ctx.sessionAttribute("flash", "Некорректный URL");
