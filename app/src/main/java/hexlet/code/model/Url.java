@@ -16,9 +16,9 @@ public class Url {
     @ToString.Include
     private String name;
 
-    public Url(String name) {
+    public Url(String name, LocalDateTime createdAt) {
         this.name = name;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = createdAt;
     }
 
 }
