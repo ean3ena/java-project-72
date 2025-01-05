@@ -19,13 +19,14 @@ application {
 dependencies {
     compileOnly("org.projectlombok:lombok:1.18.36")
     annotationProcessor("org.projectlombok:lombok:1.18.36")
-    implementation("io.javalin:javalin:6.4.0")
+    implementation("io.javalin:javalin-bundle:6.4.0")
     implementation("io.javalin:javalin-rendering:6.1.6")
     implementation("gg.jte:jte:3.1.15")
     implementation("org.slf4j:slf4j-simple:2.0.16")
     implementation("com.zaxxer:HikariCP:6.2.1")
     implementation("com.h2database:h2:2.2.220")
     implementation("org.postgresql:postgresql:42.7.4")
+
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.slf4j:slf4j-simple:2.0.16")
