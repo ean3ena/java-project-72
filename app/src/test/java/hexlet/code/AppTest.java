@@ -1,14 +1,22 @@
 package hexlet.code;
 
 import hexlet.code.model.Url;
+import hexlet.code.repository.UrlCheckRepository;
 import hexlet.code.repository.UrlRepository;
 import hexlet.code.util.NamedRoutes;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -19,7 +27,25 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AppTest {
 
-    Javalin app;
+    private Javalin app;
+    private static MockWebServer mockServer;
+
+    @BeforeAll
+    public static void startMockServer() throws IOException {
+        MockResponse mockResponse = new MockResponse()
+                .setResponseCode(200)
+                .setBody(Files.readString(Paths.get("src/test/resources/fixtures/test.html")
+                        .toAbsolutePath().normalize()));
+
+        mockServer = new MockWebServer();
+        mockServer.enqueue(mockResponse);
+        mockServer.start(7095);
+    }
+
+    @AfterAll
+    public static void shutdownMockServer() throws IOException {
+        mockServer.shutdown();
+    }
 
     @BeforeEach
     public final void setUp() throws Exception {
@@ -39,7 +65,7 @@ public class AppTest {
     public void testAddUrl() {
         JavalinTest.test(app, (server, client) -> {
             var requestBody = "url=http://example.com";
-            var response = client.post("/urls", requestBody);
+            var response = client.post(NamedRoutes.urlsPath(), requestBody);
             assertEquals(200, response.code());
             assertTrue(response.body().string().contains("http://example.com"));
 
@@ -54,7 +80,7 @@ public class AppTest {
     public void testAddWrongUrl() {
         JavalinTest.test(app, (server, client) -> {
             var requestBody = "url=hhpp://example.com";
-            var response = client.post("/urls", requestBody);
+            var response = client.post(NamedRoutes.urlsPath(), requestBody);
             assertEquals(200, response.code());
             assertFalse(response.body().string().contains("hhpp://example.com"));
 
@@ -67,7 +93,7 @@ public class AppTest {
     public void testAddUrlWithPort() {
         JavalinTest.test(app, (server, client) -> {
             var requestBody = "url=http://example.com:7890";
-            var response = client.post("/urls", requestBody);
+            var response = client.post(NamedRoutes.urlsPath(), requestBody);
             assertEquals(200, response.code());
             assertTrue(response.body().string().contains("http://example.com:7890"));
 
@@ -82,9 +108,9 @@ public class AppTest {
     public void testAddUrlAgain() {
         JavalinTest.test(app, (server, client) -> {
             var requestBody = "url=http://example.com";
-            var response = client.post("/urls", requestBody);
+            var response = client.post(NamedRoutes.urlsPath(), requestBody);
             assertEquals(200, response.code());
-            var response2 = client.post("/urls", requestBody);
+            var response2 = client.post(NamedRoutes.urlsPath(), requestBody);
             assertEquals(200, response2.code());
 
             var url = UrlRepository.getEntities().stream()
@@ -95,7 +121,7 @@ public class AppTest {
     }
 
     @Test
-    public void testAddFewUrl() {
+    public void testAddFewUrl() throws SQLException {
         JavalinTest.test(app, (server, client) -> {
             var response = client.post("/urls", "url=http://example.com");
             assertEquals(200, response.code());
@@ -110,12 +136,12 @@ public class AppTest {
     }
 
     @Test
-    public void testUrlsList() {
+    public void testUrlsList() throws SQLException {
         JavalinTest.test(app, (server, client) -> {
             var requestBody = "url=http://example.com";
-            var response = client.post("/urls", requestBody);
+            var response = client.post(NamedRoutes.urlsPath(), requestBody);
             assertEquals(200, response.code());
-            var response2 = client.get("/urls");
+            var response2 = client.get(NamedRoutes.urlsPath());
             assertTrue(response2.body().string().contains("http://example.com"));
         });
     }
@@ -125,7 +151,7 @@ public class AppTest {
         var url = new Url("http://example.com", LocalDateTime.now());
         UrlRepository.save(url);
         JavalinTest.test(app, (server, client) -> {
-            var response = client.get("/urls/" + url.getId());
+            var response = client.get(NamedRoutes.urlPath(url.getId()));
             assertEquals(200, response.code());
             assertTrue(response.body().string().contains("http://example.com"));
         });
@@ -134,11 +160,28 @@ public class AppTest {
     @Test
     public void testUrlNotFound() {
         JavalinTest.test(app, (server, client) -> {
-            var response = client.get("/url/999999");
+            var response = client.get(NamedRoutes.urlPath(999999L));
             assertEquals(404, response.code());
             assertTrue(response.body().string().contains("not found"));
 
             assertEquals(Optional.empty(), UrlRepository.find(99999L));
+        });
+    }
+
+    @Test
+    public void testUrlChecks() throws SQLException {
+
+        var baseUrl = mockServer.url("/").toString();
+        var url = new Url(baseUrl, LocalDateTime.now());
+        UrlRepository.save(url);
+
+        JavalinTest.test(app, (server, client) -> {
+
+            var response = client.post(NamedRoutes.urlChecksPath(url.getId()));
+            assertEquals(200, response.code());
+
+            var checks = UrlCheckRepository.getByUrlId(url.getId());
+            assertEquals(1, checks.size());
         });
     }
 }
