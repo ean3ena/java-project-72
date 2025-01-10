@@ -11,7 +11,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 
 public class UrlChecksController {
 
@@ -30,7 +29,6 @@ public class UrlChecksController {
                 .h1(doc.select("h1").text())
                 .description(doc.select("meta[name=description]").attr("content"))
                 .urlId(urlId)
-                .createdAt(LocalDateTime.now())
                 .build();
 
         UrlCheckRepository.save(urlCheck);
