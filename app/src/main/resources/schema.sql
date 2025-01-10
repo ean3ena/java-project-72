@@ -1,5 +1,5 @@
-DROP TABLE IF EXISTS urls;
 DROP TABLE IF EXISTS url_checks;
+DROP TABLE IF EXISTS urls;
 
 CREATE TABLE urls (
     id BIGSERIAL PRIMARY KEY,
@@ -13,6 +13,6 @@ CREATE TABLE url_checks (
     title varchar(255),
     h1 varchar(255),
     description text,
-    url_id BIGSERIAL NOT NULL,
+    url_id BIGSERIAL REFERENCES urls(id) NOT NULL,
     created_at timestamp NOT NULL
 );
