@@ -16,7 +16,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
 
 import static io.javalin.rendering.template.TemplateUtil.model;
@@ -25,12 +24,7 @@ public class UrlsController {
 
     public static void index(Context ctx) throws SQLException {
         var urls = UrlRepository.getEntities();
-        Map<Long, UrlCheck> lastChecks = new HashMap<>();
-        for (var url : urls) {
-            UrlCheck lastCheck = UrlCheckRepository.getByUrlId(url.getId()).stream()
-                    .findFirst().orElse(null);
-            lastChecks.put(url.getId(), lastCheck);
-        }
+        Map<Long, UrlCheck> lastChecks = UrlCheckRepository.getLastChecks();
         var page = new UrlsPage(urls, lastChecks);
         page.setFlash(ctx.consumeSessionAttribute("flash"));
         page.setFlashType(ctx.consumeSessionAttribute("flashType"));
