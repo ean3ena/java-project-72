@@ -5,8 +5,11 @@ import hexlet.code.model.UrlCheck;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class UrlCheckRepository extends BaseRepository {
 
@@ -20,12 +23,35 @@ public class UrlCheckRepository extends BaseRepository {
             preparedStatement.setString(3, urlCheck.getH1());
             preparedStatement.setString(4, urlCheck.getDescription());
             preparedStatement.setLong(5, urlCheck.getUrlId());
-            preparedStatement.setTimestamp(6, Timestamp.valueOf(urlCheck.getCreatedAt()));
+            preparedStatement.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
             preparedStatement.executeUpdate();
             var generatedKeys = preparedStatement.getGeneratedKeys();
             if (generatedKeys.next()) {
                 urlCheck.setId(generatedKeys.getLong(1));
             }
+        }
+    }
+
+    public static Map<Long, UrlCheck> getLastChecks() throws SQLException {
+        var sql = "SELECT DISTINCT ON (url_id) * FROM url_checks ORDER BY created_at DESC";
+        try (var conn = dataSource.getConnection();
+             var stmt = conn.prepareStatement(sql)) {
+            var resultSet = stmt.executeQuery();
+            Map<Long, UrlCheck> result = new HashMap<>();
+            while (resultSet.next()) {
+                var urlId = resultSet.getLong("url_id");
+                var urlCheck = UrlCheck.builder()
+                        .id(resultSet.getLong("id"))
+                        .statusCode(resultSet.getInt("status_code"))
+                        .title(resultSet.getString("title"))
+                        .h1(resultSet.getString("h1"))
+                        .description(resultSet.getString("description"))
+                        .urlId(urlId)
+                        .createdAt(resultSet.getTimestamp("created_at").toLocalDateTime())
+                        .build();
+                result.put(urlId, urlCheck);
+            }
+            return result;
         }
     }
 
