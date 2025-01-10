@@ -180,6 +180,10 @@ public class AppTest {
             var response = client.post(NamedRoutes.urlChecksPath(url.getId()));
             assertEquals(200, response.code());
 
+            var body = response.body().string();
+            assertTrue(body.contains("Тестовый заголовок"));
+            assertTrue(body.contains("Тестовое описание страницы"));
+
             var checks = UrlCheckRepository.getByUrlId(url.getId());
             assertEquals(1, checks.size());
         });
