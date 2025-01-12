@@ -186,6 +186,9 @@ public class AppTest {
 
             var checks = UrlCheckRepository.getByUrlId(url.getId());
             assertEquals(1, checks.size());
+
+            var checks2 = UrlCheckRepository.getLastChecks();
+            assertEquals(1, checks2.size());
         });
     }
 }

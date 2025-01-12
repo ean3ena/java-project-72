@@ -16,9 +16,12 @@ public class Url {
     @ToString.Include
     private String name;
 
+    public Url(String name) {
+        this.name = name;
+    }
+
     public Url(String name, LocalDateTime createdAt) {
         this.name = name;
         this.createdAt = createdAt;
     }
-
 }

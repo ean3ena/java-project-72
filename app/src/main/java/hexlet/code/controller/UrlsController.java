@@ -15,7 +15,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.Map;
 
 import static io.javalin.rendering.template.TemplateUtil.model;
@@ -66,7 +65,7 @@ public class UrlsController {
                 ctx.sessionAttribute("flash", "Страница уже существует");
                 ctx.sessionAttribute("flashType", "warning");
             } else {
-                var urlObj = new Url(urlString, LocalDateTime.now());
+                var urlObj = new Url(urlString);
                 UrlRepository.save(urlObj);
                 ctx.sessionAttribute("flash", "Страница успешно добавлена");
                 ctx.sessionAttribute("flashType", "success");

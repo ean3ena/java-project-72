@@ -23,12 +23,12 @@
                     <td>${url.getId()}</td>
                     <td><a href="${NamedRoutes.urlPath(url.getId())}">${url.getName()}</a></td>
                     <td>
-                        @if(page.getLastChecks().size() != 0 && page.getLastChecks().get(url.getId()) != null)
+                        @if(!page.getLastChecks().isEmpty() && page.getLastChecks().get(url.getId()) != null)
                             ${page.getLastChecks().get(url.getId()).getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy kk:mm"))}
                         @endif
                     </td>
                     <td>
-                        @if(page.getLastChecks().size() != 0 && page.getLastChecks().get(url.getId()) != null)
+                        @if(!page.getLastChecks().isEmpty() && page.getLastChecks().get(url.getId()) != null)
                             ${page.getLastChecks().get(url.getId()).getStatusCode()}
                         @endif
                     </td>
