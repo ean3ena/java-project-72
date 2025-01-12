@@ -2,6 +2,7 @@ package hexlet.code.repository;
 
 import hexlet.code.model.UrlCheck;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
@@ -40,15 +41,7 @@ public class UrlCheckRepository extends BaseRepository {
             Map<Long, UrlCheck> result = new HashMap<>();
             while (resultSet.next()) {
                 var urlId = resultSet.getLong("url_id");
-                var urlCheck = UrlCheck.builder()
-                        .id(resultSet.getLong("id"))
-                        .statusCode(resultSet.getInt("status_code"))
-                        .title(resultSet.getString("title"))
-                        .h1(resultSet.getString("h1"))
-                        .description(resultSet.getString("description"))
-                        .urlId(urlId)
-                        .createdAt(resultSet.getTimestamp("created_at").toLocalDateTime())
-                        .build();
+                var urlCheck = buildUrlCheck(resultSet, urlId);
                 result.put(urlId, urlCheck);
             }
             return result;
@@ -63,18 +56,23 @@ public class UrlCheckRepository extends BaseRepository {
             var resultSet = stmt.executeQuery();
             var result = new ArrayList<UrlCheck>();
             while (resultSet.next()) {
-                var urlCheck = UrlCheck.builder()
-                        .id(resultSet.getLong("id"))
-                        .statusCode(resultSet.getInt("status_code"))
-                        .title(resultSet.getString("title"))
-                        .h1(resultSet.getString("h1"))
-                        .description(resultSet.getString("description"))
-                        .urlId(resultSet.getLong("url_id"))
-                        .createdAt(resultSet.getTimestamp("created_at").toLocalDateTime())
-                        .build();
+                var urlCheck = buildUrlCheck(resultSet, urlId);
                 result.add(urlCheck);
             }
             return result;
         }
+    }
+
+    private static UrlCheck buildUrlCheck(ResultSet resultSet, Long urlId) throws SQLException {
+
+        return UrlCheck.builder()
+                .id(resultSet.getLong("id"))
+                .statusCode(resultSet.getInt("status_code"))
+                .title(resultSet.getString("title"))
+                .h1(resultSet.getString("h1"))
+                .description(resultSet.getString("description"))
+                .urlId(urlId)
+                .createdAt(resultSet.getTimestamp("created_at").toLocalDateTime())
+                .build();
     }
 }

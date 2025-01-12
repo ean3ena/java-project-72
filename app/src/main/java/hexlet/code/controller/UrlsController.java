@@ -44,19 +44,11 @@ public class UrlsController {
 
         try {
             URL checkableUrl = new URI(urlFormParam).toURL();
+
             var protocol = checkableUrl.getProtocol();
             var host = checkableUrl.getHost();
             var port = checkableUrl.getPort();
-
-            StringBuilder urlStringBuilder = new StringBuilder();
-            urlStringBuilder.append(protocol);
-            urlStringBuilder.append("://");
-            urlStringBuilder.append(host);
-            if (port != -1) {
-                urlStringBuilder.append(":");
-                urlStringBuilder.append(port);
-            }
-            String urlString = urlStringBuilder.toString();
+            String urlString = String.format("%s://%s%s", protocol, host, port != -1 ? ":" + port : "");
 
             Boolean urlExists = UrlRepository.getEntities().stream()
                     .anyMatch(el -> el.getName().equals(urlString));
